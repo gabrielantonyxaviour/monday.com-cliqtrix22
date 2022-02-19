@@ -15,12 +15,12 @@ What is Zoho Cliq?
 
 *HOW TO USE*
 
-  Step 1: Login to your monday.com organization account as admin. Only admins have the permission to add external services to their app.
-  Step 2: Install Zoho App in your organization using this link https://auth.monday.com/oauth2/authorize?client_id=22317aeffeaa227e05503f3587f55313&response_type=install
-  Step 3: After installing the app and with your monday account logged in go to Zoho Cliq and log in your account as admin. Only admins have the permission to add external               services in Zoho.
-  Step 4: Click on this link to automatically get your extension https://cliq.zoho.com/installapp.do?id=4140
-  Step 5: After installing the extension, you can use all the services but before that agree to all the permissions by exploring every functionality in the extension.
-  Step 6: Enjoy the experience :)
+  Step 1: Login to your monday.com organization account as admin. Only admins have the permission to add external services to their app.\n
+  Step 2: Install Zoho App in your organization using this link https://auth.monday.com/oauth2/authorize?client_id=22317aeffeaa227e05503f3587f55313&response_type=install \n
+  Step 3: After installing the app and with your monday account logged in go to Zoho Cliq and log in your account as admin. Only admins have the permission to add external               services in Zoho.\n
+  Step 4: Click on this link to automatically get your extension https://cliq.zoho.com/installapp.do?id=4140 \n
+  Step 5: After installing the extension, you can use all the services but before that agree to all the permissions by exploring every functionality in the extension. \n
+  Step 6: Enjoy the experience :) \n
 
 *CONTACT*
   In case of any difficulties or problems, contact me: gabrielantony56@gmail.com
