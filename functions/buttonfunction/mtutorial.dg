@@ -1,0 +1,73 @@
+
+info target;
+if(target.get("name") == "Let's go!!")
+{
+	response = Map();
+	card = Map();
+	card.put("title","The Fantastic Four");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://www.bing.com/th/id/OGC.9db88aee7002fc8891c7b3d622c19ecd?pid=1.7&rurl=https%3a%2f%2fmedia.giphy.com%2fmedia%2fgibx18wIv9pvyke281%2fgiphy.gif&ehk=FKJ3uICIZyHaaUvZXlnPUdtYbyXOjWEkIEcCBYmeIA8%3d");
+	response.put("buttons",{{"label":"I'm excited!!","type":"+","action":{"type":"invoke.function","data":{"name":"mtutorial"}}}});
+	response.put("card",card);
+	response.put("text","I am gonna teach you the four abilities to get you on-boarded and become a task managemnet superhero.\n\nExcited to begin?");
+	return response;
+}
+else if(target.get("name") == "I'm excited!!")
+{
+	response = Map();
+	card = Map();
+	card.put("title","Ability #1");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://orig00.deviantart.net/c066/f/2018/028/b/d/bd4dfffc72aebe1fbb219fd5d0cdf73e-dc1ibsp.gif");
+	response.put("buttons",{{"label":"Tell me more!","type":"+","action":{"type":"invoke.function","data":{"name":"mtutorial"}}}});
+	response.put("card",card);
+	response.put("text","You can view your tasks and your teams tasks ANYTIME by clicking the tasks shortcut in the menubar or visiting the home page of the monday widget :cool!:");
+	return response;
+}
+else if(target.get("name") == "Tell me more!")
+{
+	response = Map();
+	card = Map();
+	card.put("title","Ability #2");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://th.bing.com/th/id/R.c28a13425b8a3751e196e95b9a0a6d42?rik=O1mz%2bpHcMolPVA&riu=http%3a%2f%2fbestanimations.com%2fCareers%2fEntertainment%2fMagic%2fmagician-magic-hat-animation.gif&ehk=1ywkMm27%2fWjha42Hdr4i1WU47ELWVvTmQyLfSIq9Id0%3d&risl=&pid=ImgRaw&r=0");
+	response.put("buttons",{{"label":"What's next?","type":"+","action":{"type":"invoke.function","data":{"name":"mtutorial"}}}});
+	response.put("card",card);
+	response.put("text","You have three slash commands at your expense that you can execute from anywhere :wink!:\n\n1.\\mboards - Contains all board actions\n2.\\mactivitylogs - To view personal and public logs\n3.\\mupdates - To view,write and delete updates of a particular item in a particular board");
+	return response;
+}
+else if(target.get("name") == "What's next?")
+{
+	response = Map();
+	card = Map();
+	card.put("title","Ability #3");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://bestanimations.com/Games/Cards/card-trick-animated-gif-10.gif");
+	response.put("buttons",{{"label":"Final one?","type":"+","action":{"type":"invoke.function","data":{"name":"mtutorial"}}}});
+	response.put("card",card);
+	response.put("text","I have set a schedule to send you all the tasks assigned for you and your team in the morning along with a fact for the day :wink!:\nI have also set another schedule to send all the tasks that are updated in the evening along with a small joke to put a smile on your face.\nThese scheduled messages won't disturb your work time :relaxed!:");
+	return response;
+}
+else if(target.get("name") == "Final one?")
+{
+	response = Map();
+	card = Map();
+	card.put("title","Ability #4");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://th.bing.com/th/id/R.3fe464c6e283464c09a535965369f00c?rik=9fHomfnWUtCZWg&riu=http%3a%2f%2f38.media.tumblr.com%2f97237e5f5d7509a24ac04280ffd8fc1c%2ftumblr_nw6cu8Onzt1sjwwzso1_540.gif&ehk=fRa%2fGy3QfD0BcXTFAFfr4AdXX%2f37ZSEX3KvRGZe39Vk%3d&risl=&pid=ImgRaw&r=0");
+	response.put("buttons",{{"label":"Thanks Monday!","type":"+","action":{"type":"invoke.function","data":{"name":"mtutorial"}}}});
+	response.put("card",card);
+	response.put("text","Last but not the least you can always chat with me. I bet I'm clever. You can always hop on to fun-zone to relax and make yourself comfortable. \nAnd voila we are all set!");
+	return response;
+}
+else
+{
+	response = Map();
+	card = Map();
+	card.put("title","Hooray! :love!:");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://www.bing.com/th/id/OGC.5e78affab2547d678e4c5458dd931381?pid=1.7&rurl=https%3a%2f%2fgifimage.net%2fwp-content%2fuploads%2f2018%2f11%2fwelcome-to-whatsapp-gif-6.gif&ehk=gBCxmUhB%2feN7rmgm1eOhAWVxDAmlGFCioe%2bur5qIi%2bA%3d");
+	response.put("card",card);
+	response.put("text","You can always view my powers incase you forgot something by clicking on the powers tab in the menu bar. Try on all my features ... I'm at your service :wink!:");
+	return response;
+}

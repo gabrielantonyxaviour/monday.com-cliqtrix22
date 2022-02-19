@@ -1,0 +1,86 @@
+
+if(selections.get(0).toMap().get("title") == "My Activity")
+{
+	boards = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { boards{ name id  subscribers{id} }}"}
+		connection:"read_users_board_data"
+	];
+	opt = List();
+	adminornot = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { me { id is_admin }}"}
+		connection:"read_personal_info"
+	];
+	myid = adminornot.get("data").get("me").get("id");
+	isadmin = adminornot.get("data").get("me").get("is_admin");
+	boards = boards.get("data").get("boards");
+	for each  board in boards
+	{
+		subscribers = board.get("subscribers");
+		if(isadmin == true)
+		{
+			data = {"label":board.get("name"),"value":board.get("id")};
+			opt.add(data);
+			continue;
+		}
+		for each  subscriber in subscribers
+		{
+			sub = subscriber.get("id");
+			if(sub == myid)
+			{
+				data = {"label":board.get("name"),"value":board.get("id")};
+				opt.add(data);
+				break;
+			}
+		}
+	}
+	if(opt.isEmpty())
+	{
+		response = Map();
+		card = Map();
+		card.put("theme","prompt");
+		response.put("card",card);
+		card.put("thumbnail","https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif");
+		card.put("title","Sorry ;(");
+		response.put("text","You cannot do that operation because you aren't subscribed to any boards!");
+		return response;
+	}
+	chooseboard = {"type":"dynamic_select","name":"BoardName","label":"Board","hint":"Select a board","placeholder":"Select a board","mandatory":true,"value":"value","options":opt};
+	return {"type":"form","title":"My Activity Logs","hint":"Choose a board to view logs","name":"MyActLogs","version":1,"button_label":"Confirm","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+}
+else if(selections.get(0).toMap().get("title") == "All Activity")
+{
+	boards = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { boards{ name id  subscribers{id} }}"}
+		connection:"read_users_board_data"
+	];
+	opt = List();
+	boards = boards.get("data").get("boards");
+	for each  board in boards
+	{
+		data = {"label":board.get("name"),"value":board.get("id")};
+		opt.add(data);
+	}
+	if(opt.isEmpty())
+	{
+		response = Map();
+		card = Map();
+		card.put("theme","prompt");
+		response.put("card",card);
+		card.put("thumbnail","https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif");
+		card.put("title","Sorry ;(");
+		response.put("text","You cannot do that operation because there are no boards!");
+		return response;
+	}
+	chooseboard = {"type":"dynamic_select","name":"BoardName","label":"Board","hint":"Select a board","placeholder":"Select a board","mandatory":true,"value":"value","options":opt};
+	return {"type":"form","title":"All Activity Logs","hint":"Choose a board to view logs","name":"AllActLogs","version":1,"button_label":"Confirm","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+}
+return Map();

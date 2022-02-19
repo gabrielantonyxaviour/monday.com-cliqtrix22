@@ -1,0 +1,24 @@
+
+response = Map();
+card = Map();
+if(newuser)
+{
+	card.put("title","Welcome " + user.get("first_name") + " :cool!:");
+	card.put("theme","prompt");
+	response.put("buttons",{{"label":"Let's go!!","type":"+","action":{"type":"invoke.function","data":{"name":"mtutorial"}}}});
+	card.put("thumbnail","https://th.bing.com/th/id/R.e8055d7ea3f2cde41a1ba188f728f534?rik=kTwsxqpP0atT%2fA&riu=http%3a%2f%2fgifimage.net%2fwp-content%2fuploads%2f2017%2f08%2fsuperhero-gif-21.gif&ehk=DD5ou8M4gDSkqJf6ywFjLKFpLoWMbXCfi211foRYA1o%3d&risl=&pid=ImgRaw&r=0");
+	response.put("text","Become a SUPER HERO by managing all your tasks in the tip of your finger!\n\nHey I know you are new around here.. Wanna learn how to use all my abilities? :wink!:");
+	response.put("styles",{"highlight":true});
+	response.put("card",card);
+}
+else
+{
+	card.put("title","Welcome " + user.get("first_name") + " :cool!:");
+	card.put("theme","prompt");
+	response.put("buttons",{{"label":"Let's go!!","type":"+","action":{"type":"invoke.function","data":{"name":"mtutorial"}}}});
+	card.put("thumbnail","https://th.bing.com/th/id/R.e8055d7ea3f2cde41a1ba188f728f534?rik=kTwsxqpP0atT%2fA&riu=http%3a%2f%2fgifimage.net%2fwp-content%2fuploads%2f2017%2f08%2fsuperhero-gif-21.gif&ehk=DD5ou8M4gDSkqJf6ywFjLKFpLoWMbXCfi211foRYA1o%3d&risl=&pid=ImgRaw&r=0");
+	response.put("text","Glad you're back. Time to become a SUPERHERO again. Using monday from the website was tiresome wasn't it?\n\nClick below if you wanna go through the tutorial again :wink!:\n\n");
+	response.put("styles",{"highlight":true});
+	response.put("card",card);
+}
+return response;

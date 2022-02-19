@@ -1,0 +1,159 @@
+
+response = Map();
+//FUN ZONEEEEEEEEEEEEEEE
+if(message.containsIgnoreCase("HI ") || message.equalsIgnoreCase("HI") || message.containsIgnoreCase("HEY") || message.containsIgnoreCase("hello"))
+{
+	text = "Hello! Are your tasks managed well? :wink!:";
+	response.put("suggestions",{"list":{{"text":"Yeahh!"},{"text":"Meh!"}}});
+}
+else if(message.equals("Yeahh!"))
+{
+	text = "Amazing! Always ready to help you in any ways! Click on *Powers* in the menu bar to get started :smile!:\n\n Text me *I'm bored* or *Fun-Zone* if you wanna chill with me :blush!:";
+}
+else if(message.containsIgnoreCase("I'm bored") || message.containsIgnoreCase("Fun-Zone"))
+{
+	card = Map();
+	response.put("card",card);
+	card.put("title","FUN-ZONE");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://th.bing.com/th/id/R.3a369fdd0fd9b6eeadf9114046e601ac?rik=j3JVLpb8kwVkuQ&riu=http%3a%2f%2fbestanimations.com%2fMusic%2fDancers%2fhappy-dance%2fhappy-dance-animated-gif-image-54.gif&ehk=L64aLs2LnStpvx6OAS2pyj%2fejWIUKfisjuEGp%2fhgNxU%3d&risl=&pid=ImgRaw&r=0");
+	text = "Welcome *" + user.get("first_name") + "* or... should I call you *" + user.get("last_name") + "*? :razz!: \n\nI can do a lot of things to make you not feel bored :wink!:";
+	response.put("suggestions",{"list":{{"text":"Puns!"},{"text":"Jokes!"},{"text":"Facts!"}}});
+}
+else if(message.equals("Puns!"))
+{
+	puns = invokeurl
+	[
+		url :"https://dad-jokes.p.rapidapi.com/random/joke"
+		type :GET
+		headers:{"x-rapidapi-host":"dad-jokes.p.rapidapi.com","x-rapidapi-key":"d77878f019mshb86b56759562ea1p13048ejsneda9faebabc4"}
+	];
+	status = puns.get("success");
+	card = Map();
+	response.put("card",card);
+	card.put("title","PUNS");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://media1.tenor.com/images/64fd7128e241ecec71713d8752337e51/tenor.gif?itemid=16606458");
+	if(status == true)
+	{
+		setup = puns.get("body").get(0).get("setup");
+		punch = puns.get("body").get(0).get("punchline");
+		text = "*Setup*\n" + setup + "\n\n*Punchline*\n" + punch + "\n\n\n(Fetched via API calls)";
+	}
+	else
+	{
+		text = "Sorry I ran out of puns untill tomorrow try a different option :upset!:";
+	}
+	response.put("suggestions",{"list":{{"text":"Puns!"},{"text":"Jokes!"},{"text":"Facts!"}}});
+}
+else if(message.equals("Jokes!"))
+{
+	jokes = invokeurl
+	[
+		url :"https://jokeapi-v2.p.rapidapi.com/joke/Any"
+		type :GET
+		parameters:{"format":"json"}
+		headers:{"x-rapidapi-host":"jokeapi-v2.p.rapidapi.com","x-rapidapi-key":"d77878f019mshb86b56759562ea1p13048ejsneda9faebabc4"}
+	];
+	status = jokes.get("error");
+	card = Map();
+	response.put("card",card);
+	card.put("title","JOKES");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://th.bing.com/th/id/R.8fc2dabbf34c128978061aad144b0d59?rik=za2ql7WjcPWcqQ&riu=http%3a%2f%2fwww.reactiongifs.com%2fr%2f2tYt6V9.gif&ehk=Xhtl3rgxjDM2%2bxBlVX%2fJqFS8qEXPNomJw2Tu3IR%2bjRU%3d&risl=1&pid=ImgRaw&r=0");
+	if(status == false)
+	{
+		category = jokes.get("category");
+		setup = jokes.get("setup");
+		punch = jokes.get("delivery");
+		if(setup != null && punch != null)
+		{
+			text = "*Category*\n" + category + "\n\n*Setup*\n" + setup + "\n\n*Punchline*\n" + punch + "\n\n\n(Fetched via API calls)";
+		}
+		else
+		{
+			jokes = invokeurl
+			[
+				url :"https://jokeapi-v2.p.rapidapi.com/joke/Any"
+				type :GET
+				parameters:{"format":"json"}
+				headers:{"x-rapidapi-host":"jokeapi-v2.p.rapidapi.com","x-rapidapi-key":"d77878f019mshb86b56759562ea1p13048ejsneda9faebabc4"}
+			];
+			category = jokes.get("category");
+			setup = jokes.get("setup");
+			punch = jokes.get("delivery");
+			text = "*Category*\n" + category + "\n\n*Setup*\n" + setup + "\n\n*Punchline*\n" + punch + "\n\n\n(Fetched via API calls)";
+		}
+	}
+	else
+	{
+		text = "Sorry I ran out of jokes untill tomorrow try a different option :upset!:";
+	}
+	response.put("suggestions",{"list":{{"text":"Puns!"},{"text":"Jokes!"},{"text":"Facts!"}}});
+}
+else if(message.equals("Facts!"))
+{
+	facts = invokeurl
+	[
+		url :"https://random-facts2.p.rapidapi.com/getfact"
+		type :GET
+		parameters:{"format":"json"}
+		headers:{"x-rapidapi-host":"random-facts2.p.rapidapi.com","x-rapidapi-key":"d77878f019mshb86b56759562ea1p13048ejsneda9faebabc4"}
+	];
+	card = Map();
+	response.put("card",card);
+	card.put("title","FACTS");
+	card.put("theme","prompt");
+	card.put("thumbnail","https://media1.tenor.com/images/a06665ba8bc1b5e49df78d4d9a23858f/tenor.gif?itemid=15358845");
+	fact = facts.get("Fact");
+	text = "*Did you know?*\n\n" + fact;
+	response.put("suggestions",{"list":{{"text":"Puns!"},{"text":"Jokes!"},{"text":"Facts!"}}});
+}
+else if(message.equals("Meh!"))
+{
+	text = "Oh No! I wish I could make you smile. :sad!: Click on *Powers* in the menu bar to get started\n\n Do you wanna here a joke to chill out? I bet I'm good :cool!:";
+	response.put("suggestions",{"list":{{"text":"Puns!"},{"text":"Jokes!"}}});
+}
+//FUN ZONEEEEEEEE
+else if(message.containsIgnoreCase("About") && message.containsIgnoreCase("monday"))
+{
+	text = "Monday.com is a cloud-based platform that allows users to create their own applications and work management software. The product was launched in 2014 and in July 2019, the company raised $150 million, based on a $1.9 billion valuation. The company went public in June 2021.";
+}
+else if(message.containsIgnoreCase("board") || message.containsIgnoreCase("subscribe"))
+{
+	text = "Try using \t*\"/mboards\"*\t command to perform board actions from anywhere :smile!:";
+}
+else if(message.containsIgnoreCase("update") || message.containsIgnoreCase("item"))
+{
+	text = "Try using \t*\"/mupdates\"*\t command to perform actions on board updates and messages from anywhere :smile!:";
+}
+else if(message.containsIgnoreCase("activit") || message.containsIgnoreCase("log"))
+{
+	text = "Try using *\"/mactivitylogs\"* command to view  activity logs from anywhere :smile!:";
+}
+else
+{
+	ai = zoho.ai.analyseSentiment(message);
+	if(ai.containKey("Error Message"))
+	{
+		text = "Messaging me for the first time? Come say a Hi ! :grinning!:\n\n To know about my powers click on *Powers* on the menu bar :cool!:";
+	}
+	else
+	{
+		pred = ai.get("Prediction");
+		if(pred == "Negative")
+		{
+			text = "I'm sorry if I disappointed you.. I wish I could make you happy by helping you completing your tasks in monday.com :sad!: \n\nClick on *Powers* in menu bar to get started";
+		}
+		else if(pred == "Positive")
+		{
+			text = "I have a really positive vibe with you.. I wish we could do a lot of things together and make our life a better place :cool!:\n\nClick on *Powers* in menu bar to get started";
+		}
+		else
+		{
+			text = "Messaging me for the first time? Come say a Hi ! :grinning!:\n\n To know about my powers click on *Powers* on the menu bar :cool!:";
+		}
+	}
+}
+response.put("text",text);
+return response;

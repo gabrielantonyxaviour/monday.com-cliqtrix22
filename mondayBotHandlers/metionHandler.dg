@@ -1,0 +1,5 @@
+
+t = "Hey! Thanks *" + user.get("first_name") + "* for mentioning me here. I can help you with *ANYTHING* easily, because I am :cool: like that! :search:";
+response = Map();
+response.put("text",message);
+return response;

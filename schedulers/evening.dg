@@ -1,0 +1,137 @@
+
+response = Map();
+card = Map();
+response.put("card",card);
+card.put("title","Good Evening!");
+card.put("theme","modern-inline");
+card.put("thumbnail","https://media2.giphy.com/media/ySpxjJmsq9gsw/200.gif");
+jokes = invokeurl
+[
+	url :"https://jokeapi-v2.p.rapidapi.com/joke/Any"
+	type :GET
+	parameters:{"format":"json"}
+	headers:{"x-rapidapi-host":"jokeapi-v2.p.rapidapi.com","x-rapidapi-key":"d77878f019mshb86b56759562ea1p13048ejsneda9faebabc4"}
+];
+status = jokes.get("error");
+if(status == false)
+{
+	category = jokes.get("category");
+	setup = jokes.get("setup");
+	punch = jokes.get("delivery");
+	if(setup != null && punch != null)
+	{
+		jokeee = "*Category*\n" + category + "\n\n*Setup*\n" + setup + "\n\n*Punchline*\n" + punch + "\n\n\n(Jokes fetched via API calls)";
+	}
+	else
+	{
+		jokes = invokeurl
+		[
+			url :"https://jokeapi-v2.p.rapidapi.com/joke/Any"
+			type :GET
+			parameters:{"format":"json"}
+			headers:{"x-rapidapi-host":"jokeapi-v2.p.rapidapi.com","x-rapidapi-key":"d77878f019mshb86b56759562ea1p13048ejsneda9faebabc4"}
+		];
+		category = jokes.get("category");
+		setup = jokes.get("setup");
+		punch = jokes.get("delivery");
+		jokeee = "*Category*\n" + category + "\n\n*Setup*\n" + setup + "\n\n*Punchline*\n" + punch + "\n\n\n(Jokes fetched via API calls)";
+	}
+}
+else
+{
+	jokeee = "Sorry I ran out of jokes untill tomorrow try a different option :upset!:";
+}
+text = "Hey " + user.get("first_name") + ", I hope you had a good day, if not don't worry everyone has their off-days. I wanna make your day with this joke :grinning!:\n\n" + jokeee + " \n\n";
+personal = invokeurl
+[
+	url :"https://api.monday.com/v2/"
+	type :POST
+	parameters:{"query":"query {  me { name teams { name } } }"}
+	connection:"read_personal_info"
+];
+TEAMNAMES = personal.get("data").get("me").get("teams");
+USERNAME = personal.get("data").get("me").get("name");
+index = 1;
+tasks = invokeurl
+[
+	url :"https://api.monday.com/v2/"
+	type :POST
+	parameters:{"query":"query { boards (order_by:used_at) { name items(newest_first:true){id name group{title} updated_at column_values{id text title } }}}"}
+	connection:"read_users_board_data"
+];
+Boards = tasks.get("data").get("boards");
+rows = List();
+for each  board in Boards
+{
+	items = board.get("items");
+	boardname = board.get("name");
+	for each  item in items
+	{
+		updated_at = item.get("updated_at").subString(0,10) + " " + item.get("updated_at").subString(11,19);
+		updated_at = updated_at.toDateTime();
+		//updated_at=zoho.currentdate;
+		column_values = item.get("column_values");
+		if(updated_at.getDate() != zoho.currentdate.getDate())
+		{
+			break;
+		}
+		if(column_values.isEmpty())
+		{
+			continue;
+		}
+		row_data = Map();
+		itemname = item.get("name");
+		groupname = item.get("group").get("title");
+		for each  c_value in column_values
+		{
+			if(c_value.get("id").contains("people"))
+			{
+				if(c_value.get("text").contains(USERNAME) && row_data.get("Item Name") == null)
+				{
+					row_data.put("Item Name",itemname);
+					row_data.put("Team Name","N/A");
+				}
+				else
+				{
+					for each  team in TEAMNAMES
+					{
+						if(c_value.get("text").contains(team.get("name")) && row_data.get("Item Name") == null)
+						{
+							row_data.put("Item Name",itemname);
+							row_data.put("Team Name",team.get("name"));
+						}
+					}
+				}
+			}
+		}
+		if(row_data.get("Team Name") == null)
+		{
+			continue;
+		}
+		rows.add(row_data);
+		row_data.put("Updated At",updated_at.getTime());
+		row_data.put("Board Name",boardname);
+		row_data.put("Group Name",groupname);
+		row_data.put("S. no",index);
+		index = index + 1;
+	}
+}
+if(rows.isEmpty())
+{
+	text = text + "Oops ;(\nNo tasks were Updated today!";
+}
+else
+{
+	text = text + "All the tasks of you and your team that are updated today is displayed here\n\n";
+	slides_map = Map();
+	slides_map.put("type","table");
+	slides = List();
+	slides.add(slides_map);
+	response.put("slides",slides);
+	slides_data = Map();
+	slides_map.put("data",slides_data);
+	slides_data.put("headers",{"S. no","Board Name","Group Name","Team Name","Item Name","Updated At"});
+	slides_data.put("rows",rows);
+}
+response.put("text",text);
+zoho.cliq.postToBot("mondaybot",response);

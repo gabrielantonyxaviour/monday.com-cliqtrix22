@@ -1,0 +1,369 @@
+
+tabs = {{"label":"Home","id":"home"},{"label":"Activity Logs","id":"activitylogs"},{"label":"Website","id":"website"}};
+selectedTab = "home";
+if(target.containKey("id"))
+{
+	selectedTab = target.get("id");
+}
+if(selectedTab == "home")
+{
+	hour = zoho.currenttime.getHour();
+	if(hour < 12)
+	{
+		title = "Good Morning, ";
+	}
+	else if(hour < 17)
+	{
+		title = "Good Afternoon, ";
+	}
+	else
+	{
+		title = "Good Evening, ";
+	}
+	title = title + user.get("first_name") + "!";
+	elements = list();
+	elements.add({"type":"title","text":title});
+	elements.add({"type":"text","text":"Remember to keep your colleagues in the loop!"});
+	elements.add({"type":"divider"});
+	sections = list();
+	sections.add({"id":1,"elements":elements});
+	tasks = invokeurl
+	[
+		url :"https://api.monday.com/v2/"
+		type :POST
+		parameters:{"query":"query { boards (order_by:used_at) { name items(newest_first:true){id name group{title} column_values{id text title } }}}"}
+		connection:"read_users_board_data"
+	];
+	info tasks;
+	Boards = tasks.get("data").get("boards");
+	personal = invokeurl
+	[
+		url :"https://api.monday.com/v2/"
+		type :POST
+		parameters:{"query":"query {  me { name teams { name } } }"}
+		connection:"read_personal_info"
+	];
+	USERNAME = personal.get("data").get("me").get("name");
+	TEAMNAMES = personal.get("data").get("me").get("teams");
+	rows = List();
+	index = 1;
+	elements = List();
+	elements.add({"type":"title","text":"My Tasks"});
+	elements.add({"type":"subtext","text":"All your most recent tasks are at the top this collection"});
+	for each  board in Boards
+	{
+		items = board.get("items");
+		boardname = board.get("name");
+		for each  item in items
+		{
+			column_values = item.get("column_values");
+			if(column_values.isEmpty())
+			{
+				continue;
+			}
+			row_data = Map();
+			itemname = item.get("name");
+			groupname = item.get("group").get("title");
+			for each  c_value in column_values
+			{
+				if(c_value.get("id").contains("people"))
+				{
+					if(c_value.get("text").contains(USERNAME) && row_data.get("Role Name") == null)
+					{
+						row_data.put("Role Name",c_value.get("title"));
+						row_data.put("Item Name",itemname);
+					}
+				}
+				if(c_value.get("id").contains("status"))
+				{
+					if(row_data.get("Status") == null)
+					{
+						row_data.put("Status",c_value.get("text"));
+					}
+				}
+			}
+			if(row_data.get("Status") == null)
+			{
+				row_data.put("Status","N/A");
+			}
+			if(row_data.get("Role Name") == null)
+			{
+				continue;
+			}
+			rows.add(row_data);
+			row_data.put("Board Name",boardname);
+			row_data.put("Group Name",groupname);
+			row_data.put("S. no",index);
+			index = index + 1;
+		}
+	}
+	if(rows.isEmpty())
+	{
+		elements.add({"type":"text","text":"\nNo tasks assigned for you! :)\n"});
+	}
+	else
+	{
+		table = Map();
+		table.put("type","table");
+		table.put("headers",{"S. no","Board Name","Group Name","Item Name","Role Name","Status"});
+		table.put("rows",rows);
+		elements.add(table);
+	}
+	elements.add({"type":"divider"});
+	sections.add({"id":2,"elements":elements});
+	elementss = List();
+	elementss.add({"type":"title","text":"Team Tasks"});
+	elementss.add({"type":"subtext","text":"All the most recent team tasks are at the top this collection"});
+	TEAMNAMES = personal.get("data").get("me").get("teams");
+	for each  team in TEAMNAMES
+	{
+		rowss = List();
+		index = 1;
+		for each  board in Boards
+		{
+			items = board.get("items");
+			boardname = board.get("name");
+			for each  item in items
+			{
+				column_values = item.get("column_values");
+				if(column_values.isEmpty())
+				{
+					continue;
+				}
+				row_data = Map();
+				itemname = item.get("name");
+				groupname = item.get("group").get("title");
+				for each  c_value in column_values
+				{
+					if(c_value.get("id").contains("people"))
+					{
+						if(c_value.get("text").contains(team.get("name")) && row_data.get("Role Name") == null)
+						{
+							row_data.put("Role Name",c_value.get("title"));
+							row_data.put("Item Name",itemname);
+						}
+					}
+					if(c_value.get("id").contains("status"))
+					{
+						if(row_data.get("Status") == null)
+						{
+							row_data.put("Status",c_value.get("text"));
+						}
+					}
+				}
+				if(row_data.get("Status") == null)
+				{
+					row_data.put("Status","N/A");
+				}
+				if(row_data.get("Role Name") == null)
+				{
+					continue;
+				}
+				rowss.add(row_data);
+				row_data.put("Board Name",boardname);
+				row_data.put("Group Name",groupname);
+				row_data.put("S. no",index);
+				index = index + 1;
+			}
+		}
+		if(rowss.isEmpty())
+		{
+			continue;
+		}
+		else
+		{
+			tablee = Map();
+			tablee.put("type","table");
+			tablee.put("headers",{"S. no","Board Name","Group Name","Item Name","Role Name","Status"});
+			tablee.put("rows",rowss);
+			elementss.add({"type":"text","text":team.get("name")});
+			elementss.add(tablee);
+		}
+	}
+	if(elementss.size() == 2)
+	{
+		elementss.add({"type":"text","text":"\nNo tasks for any of your teams! :)\n"});
+	}
+	elementss.add({"type":"divider"});
+	sections.add({"id":3,"elements":elementss});
+	return {"type":"applet","tabs":tabs,"active_tab":selectedTab,"sections":sections};
+}
+else if(selectedTab == "website")
+{
+	MYURL = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { me {url id}}"}
+		connection:"read_personal_info"
+	];
+	myurl = MYURL.get("data").get("me").get("url");
+	IDD = MYURL.get("data").get("me").get("id").toString();
+	IDD = "/users/" + IDD;
+	myurl = myurl.replaceAll(IDD,"/");
+	return {"type":"applet","data_type":"info","tabs":tabs,"info":{"title":"Web view is unavailable for Monday!","description":"Click here to go to Monday.","image_url":"https://cdn.dribbble.com/users/1363659/screenshots/3832798/monday_outro.gif","button":{"label":"Let's go","type":"open.url","url":myurl}},"active_tab":selectedTab};
+}
+else
+{
+	elements = List();
+	elements.add({"type":"title","text":"Activity Logs"});
+	elements.add({"type":"divider"});
+	elements.add({"type":"title","text":"My Logs"});
+	rows = List();
+	rowss = List();
+	MYID = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { me { id name }}"}
+		connection:"read_personal_info"
+	];
+	myid = MYID.get("data").get("me").get("id");
+	myname = MYID.get("data").get("me").get("name");
+	info "MYID" + myid;
+	info "MYNAME " + myname;
+	myactions = invokeurl
+	[
+		url :"https://api.monday.com/v2/"
+		type :POST
+		parameters:{"query":"query { boards{ name activity_logs  { user_id event created_at }}}"}
+		connection:"read_users_board_data"
+	];
+	MYACTIONS = myactions.get("data").get("boards").get(0).get("activity_logs");
+	boardname = myactions.get("data").get("boards").get(0).get("name");
+	info myactions;
+	index = 1;
+	indexxx = 1;
+	unix = '1-Jan-1970 05:30:00';
+	for each  myaction in MYACTIONS
+	{
+		if(index == 10 || indexxx == 10)
+		{
+			break;
+		}
+		unixaddseconds = myaction.get("created_at").toNumber() / 10000000;
+		created_at = unix.addSeconds(unixaddseconds);
+		/*if(created_at.daysBetween(zoho.currentdate) > 2)
+		{
+			continue;
+		}*/
+		uid = myaction.get("user_id");
+		row_data = Map();
+		row_dataa = Map();
+		row_data.put("Board Name",boardname);
+		row_dataa.put("Board Name",boardname);
+		if(uid == myid)
+		{
+			username = myname;
+			row_data.put("S. no",index);
+			row_data.put("User Name",username);
+			row_dataa.put("S. no",indexxx);
+			row_dataa.put("User Name",username);
+		}
+		else
+		{
+			USERNAME = invokeurl
+			[
+				url :"https://api.monday.com/v2/"
+				type :POST
+				parameters:{"query":"query { users (ids: " + uid + ") {name}}"}
+				connection:"read_users_data"
+			];
+			username = USERNAME.get("data").get("users").get(0).get("name");
+			row_dataa.put("S. no",indexxx);
+			row_dataa.put("User Name",username);
+		}
+		event = myaction.get("event");
+		if(event == "create_pulse")
+		{
+			act = "A new item was created";
+		}
+		else if(event == "update_column_value")
+		{
+			act = "A column value was updated";
+		}
+		else if(event == "subscribe")
+		{
+			act = "User is subscribed to a new item";
+		}
+		else if(event == "unsubscribe")
+		{
+			act = "User is unsubscribed from an item";
+		}
+		else if(event == "add_owner")
+		{
+			act = "A new owner was added to the board";
+		}
+		else if(event == "create_column")
+		{
+			act = "A new column was created in the board";
+		}
+		else if(event == "create_group")
+		{
+			act = "A new group was created in the board";
+		}
+		else if(event == "board_view_added")
+		{
+			act = "A new board view was added in the board";
+		}
+		else if(event == "Update_name")
+		{
+			act = "Name of an item was updated";
+		}
+		else if(event == "update_group_name")
+		{
+			act = "Name of a group was updated";
+		}
+		else if(event == "delete_column")
+		{
+			act = "A new column was deleted in the board";
+		}
+		else
+		{
+			act = "An unknown action was performed";
+		}
+		row_data.put("Action",act);
+		row_data.put("Time",created_at.toString());
+		row_dataa.put("Action",act);
+		row_dataa.put("Time",created_at.toString());
+		if(uid == myid)
+		{
+			rows.add(row_data);
+			index = index + 1;
+		}
+		rowss.add(row_dataa);
+		indexxx = indexxx + 1;
+	}
+	if(rows.isEmpty())
+	{
+		elements.add({"type":"subtext","text":"There are no activities performed by you in the last 48 hours."});
+	}
+	else
+	{
+		elements.add({"type":"subtext","text":"All the activities performed by you on this board in the last 48 hours are displayed here."});
+		table = Map();
+		table.put("type","table");
+		table.put("headers",{"S. no","User Name","Board Name","Action","Time"});
+		table.put("rows",rows);
+		elements.add(table);
+	}
+	elements.add({"type":"divider"});
+	elements.add({"type":"title","text":"All Logs"});
+	if(rowss.isEmpty())
+	{
+		elements.add({"type":"subtext","text":"There are no activities performed by anyone in the last 48 hours."});
+	}
+	else
+	{
+		elements.add({"type":"subtext","text":"All the activities performed by everyone on this board in the last 48 hours are displayed here."});
+		tablee = Map();
+		tablee.put("type","table");
+		tablee.put("headers",{"S. no","User Name","Board Name","Action","Time"});
+		tablee.put("rows",rowss);
+		elements.add(tablee);
+	}
+	//elementss.add({"type":"divider"});*/
+	sections = List();
+	sections.add({"id":1,"elements":elements});
+	return {"type":"applet","tabs":tabs,"active_tab":selectedTab,"sections":sections};
+}

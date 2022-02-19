@@ -1,0 +1,41 @@
+
+title = selections.get(0).toMap().get("title");
+boards = invokeurl
+[
+	url :"https://api.monday.com/v2"
+	type :POST
+	parameters:{"query":"query { boards{ name id }}"}
+	connection:"read_users_board_data"
+];
+opt = List();
+boards = boards.get("data").get("boards");
+for each  board in boards
+{
+	data = {"label":board.get("name"),"value":board.get("id")};
+	opt.add(data);
+}
+if(opt.isEmpty())
+{
+	response = Map();
+	card = Map();
+	card.put("theme","prompt");
+	response.put("card",card);
+	card.put("thumbnail","https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif");
+	card.put("title","Sorry ;(");
+	response.put("text","You cannot do that operation!");
+	return response;
+}
+chooseboard = {"type":"dynamic_select","name":"BoardName","label":"Board","hint":"Select a board","placeholder":"Select a board","mandatory":true,"value":"value","options":opt};
+if(title == "Read Updates")
+{
+	return {"type":"form","title":title,"hint":"Choose a board to view updates","name":"ReadUpdates","version":1,"button_label":"Next","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+}
+else if(title == "Write Updates")
+{
+	return {"type":"form","title":title,"hint":"Choose a board to write updates","name":"WriteUpdates","version":1,"button_label":"Next","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+}
+else if(title == "Delete Updates")
+{
+	return {"type":"form","title":title,"hint":"Choose a board to delete updates","name":"DeleteUpdates","version":1,"button_label":"Next","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+}
+return Map();

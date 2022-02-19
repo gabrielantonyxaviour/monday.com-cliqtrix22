@@ -1,0 +1,13 @@
+
+list = List();
+entry = Map();
+entry.put("title","All Activity");
+entry.put("description","View the activity of everyone in your organization");
+entry.put("imageurl","https://www.bing.com/th/id/OGC.21b1e899a20d8120345e91e411d5a395?pid=1.7&rurl=https%3a%2f%2fi.pinimg.com%2foriginals%2f54%2fc7%2fa5%2f54c7a56c9dc40c42f4af88f51a5076a7.gif&ehk=6Vvzszcebvq3TAL9lZmbLpYDv2uZoZ8nxRqmCn9U3EI%3d");
+list.add(entry);
+entry1 = Map();
+entry1.put("title","My Activity");
+entry1.put("description","View your activity in monday.com");
+entry1.put("imageurl","https://media.tenor.com/images/89416ffcaa47a2703cee6c5823aacb08/tenor.gif");
+list.add(entry1);
+return list;

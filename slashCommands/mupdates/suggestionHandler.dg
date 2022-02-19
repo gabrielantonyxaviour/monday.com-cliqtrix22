@@ -1,0 +1,15 @@
+
+list = List();
+entry = Map();
+entry.put("title","Read Updates");
+entry.put("imageurl","https://pro2-bar-s3-cdn-cf6.myportfolio.com/6d4635e9-0c2e-46be-9427-943bd36b48ed/75cdda07-7b8e-4296-8900-f6df13e79cfe_rw_600.gif?h=63eebae4a5da5f9a60859fd870f5b8ca");
+list.add(entry);
+entry1 = Map();
+entry1.put("title","Write Updates");
+entry1.put("imageurl","https://pro2-bar-s3-cdn-cf.myportfolio.com/6d4635e9-0c2e-46be-9427-943bd36b48ed/8b229325-026d-4477-9e1f-ebb8ce2d2f8e_rw_600.gif?h=e2a51a98cfd81e657fa825a83a0bbc6f");
+list.add(entry1);
+entry2 = Map();
+entry2.put("title","Delete Updates");
+entry2.put("imageurl","https://pro2-bar-s3-cdn-cf4.myportfolio.com/6d4635e9-0c2e-46be-9427-943bd36b48ed/500d95c5-c9d2-4218-983b-cfb5f7d35157_rw_600.gif?h=8e68189892ebb6e0f11ae9d85559a33d");
+list.add(entry2);
+return list;

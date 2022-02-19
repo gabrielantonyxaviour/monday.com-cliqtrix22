@@ -1,0 +1,160 @@
+
+response = Map();
+tasks = invokeurl
+[
+	url :"https://api.monday.com/v2/"
+	type :POST
+	parameters:{"query":"query { boards (order_by:used_at) { name items(newest_first:true){id name group{title} column_values{id text title } }}}"}
+	connection:"read_users_board_data"
+];
+info tasks;
+Boards = tasks.get("data").get("boards");
+if(sub_action == "My Tasks")
+{
+	username = invokeurl
+	[
+		url :"https://api.monday.com/v2/"
+		type :POST
+		parameters:{"query":"query { me { name }}"}
+		connection:"read_personal_info"
+	];
+	USERNAME = username.get("data").get("me").get("name");
+	card = {"theme":"modern-inline","title":"My Tasks","thumbnail":"https://images.prismic.io/smarttask%2F9d9ed8be-fe43-47ee-ade8-db2a126d70ac_floating+guy2.gif?auto=compress,format"};
+	response.put("card",card);
+	slides_map = Map();
+	slides_map.put("type","table");
+	slides = List();
+	slides.add(slides_map);
+	response.put("slides",slides);
+	slides_data = Map();
+	slides_map.put("data",slides_data);
+	slides_data.put("headers",{"S. no","Board Name","Group Name","Item Name","Role Name","Status"});
+	rows = List();
+	slides_data.put("rows",rows);
+	response.put("text","\nAll tasks that are assigned to you are displayed below. \n\nClick [here](https://cliqtrix-gabriel.monday.com/) to visit your monday organization and perform operations there.");
+	index = 1;
+	for each  board in Boards
+	{
+		items = board.get("items");
+		boardname = board.get("name");
+		for each  item in items
+		{
+			column_values = item.get("column_values");
+			if(column_values.isEmpty())
+			{
+				continue;
+			}
+			row_data = Map();
+			itemname = item.get("name");
+			groupname = item.get("group").get("title");
+			for each  c_value in column_values
+			{
+				if(c_value.get("id").contains("people"))
+				{
+					if(c_value.get("text").contains(USERNAME) && row_data.get("Role Name") == null)
+					{
+						row_data.put("Role Name",c_value.get("title"));
+						row_data.put("Item Name",itemname);
+					}
+				}
+				if(c_value.get("id").contains("status"))
+				{
+					if(row_data.get("Status") == null)
+					{
+						row_data.put("Status",c_value.get("text"));
+					}
+				}
+			}
+			if(row_data.get("Status") == null)
+			{
+				row_data.put("Status","N/A");
+			}
+			if(row_data.get("Role Name") == null)
+			{
+				continue;
+			}
+			rows.add(row_data);
+			row_data.put("Board Name",boardname);
+			row_data.put("Group Name",groupname);
+			row_data.put("S. no",index);
+			index = index + 1;
+		}
+	}
+}
+else if(sub_action == "Team Tasks")
+{
+	teamnames = invokeurl
+	[
+		url :"https://api.monday.com/v2/"
+		type :POST
+		parameters:{"query":"query {  me { teams { name } } }"}
+		connection:"read_personal_info"
+	];
+	card = {"theme":"modern-inline","title":"My Tasks","thumbnail":"https://images.prismic.io/smarttask%2F9d9ed8be-fe43-47ee-ade8-db2a126d70ac_floating+guy2.gif?auto=compress,format"};
+	response.put("card",card);
+	slides_map = Map();
+	slides_map.put("type","table");
+	slides = List();
+	slides.add(slides_map);
+	response.put("slides",slides);
+	slides_data = Map();
+	slides_map.put("data",slides_data);
+	slides_data.put("headers",{"S. no","Team Name","Board Name","Group Name","Item Name","Role Name","Status"});
+	rows = List();
+	slides_data.put("rows",rows);
+	response.put("text","\nAll tasks that are assigned to your team are displayed below. \n\nClick [here](https://cliqtrix-gabriel.monday.com/) to visit your monday organization and perform operations there.");
+	index = 1;
+	TEAMNAMES = teamnames.get("data").get("me").get("teams");
+	for each  board in Boards
+	{
+		items = board.get("items");
+		boardname = board.get("name");
+		for each  item in items
+		{
+			column_values = item.get("column_values");
+			if(column_values.isEmpty())
+			{
+				continue;
+			}
+			row_data = Map();
+			itemname = item.get("name");
+			groupname = item.get("group").get("title");
+			for each  c_value in column_values
+			{
+				for each  team in TEAMNAMES
+				{
+					if(c_value.get("id").contains("people"))
+					{
+						if(c_value.get("text").contains(team.get("name")) && row_data.get("Role Name") == null)
+						{
+							row_data.put("Role Name",c_value.get("title"));
+							row_data.put("Item Name",itemname);
+							row_data.put("Team Name",team.get("name"));
+						}
+					}
+					if(c_value.get("id").contains("status"))
+					{
+						if(row_data.get("Status") == null)
+						{
+							row_data.put("Status",c_value.get("text"));
+						}
+					}
+				}
+			}
+			if(row_data.get("Status") == null)
+			{
+				row_data.put("Status","N/A");
+			}
+			if(row_data.get("Role Name") == null)
+			{
+				continue;
+			}
+			rows.add(row_data);
+			row_data.put("Board Name",boardname);
+			row_data.put("Group Name",groupname);
+			row_data.put("S. no",index);
+			index = index + 1;
+		}
+	}
+}
+return response;

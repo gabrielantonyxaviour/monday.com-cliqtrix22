@@ -1,0 +1,201 @@
+
+message = Map();
+details = selections.get(0).toMap();
+if(details.get("title").containsIgnoreCase("Create Board"))
+{
+	inputs = list();
+	writename = {"type":"text","name":"BoardName","label":"Board","hint":"Enter a name for the board","placeholder":"Enter a name","mandatory":true,"value":""};
+	writedescription = {"type":"textarea","name":"Description","label":"Description","hint":"Add a description for the board","placeholder":"Add description","mandatory":true,"value":""};
+	inputs.add(writename);
+	inputs.add(writedescription);
+	form = Map();
+	form.put("type","form");
+	form.put("title","Create Board");
+	form.put("hint","Enter the board details");
+	form.put("name","CreateBoard");
+	form.put("version",1);
+	form.put("button_label","Confirm");
+	form.put("action",{"type":"invoke.function","name":"mboardactions"});
+	form.put("inputs",inputs);
+	return form;
+}
+else if(details.get("title").containsIgnoreCase("Read Board") || details.get("title").containsIgnoreCase("Duplicate Board") || details.get("title").containsIgnoreCase("Update Board"))
+{
+	boards = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { boards{ name id }}"}
+		connection:"read_users_board_data"
+	];
+	opt = List();
+	boards = boards.get("data").get("boards");
+	for each  board in boards
+	{
+		data = {"label":board.get("name"),"value":board.get("id")};
+		opt.add(data);
+	}
+	if(opt.isEmpty())
+	{
+		response = Map();
+		card = Map();
+		card.put("theme","prompt");
+		response.put("card",card);
+		card.put("thumbnail","https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif");
+		card.put("title","Sorry ;(");
+		response.put("text","You cannot do that operation!");
+		return response;
+	}
+	chooseboard = {"type":"dynamic_select","name":"BoardName","label":"Board","hint":"Select a board","placeholder":"Select a board","mandatory":true,"value":"value","options":opt};
+	if(details.get("title").containsIgnoreCase("Update Board"))
+	{
+		return {"type":"form","title":"Update Board","hint":"Choose a board to update data","name":"UpdateBoard","version":1,"button_label":"Confirm","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+	}
+	else if(details.get("title").containsIgnoreCase("Duplicate Board"))
+	{
+		inputs = List();
+		inputs.add(chooseboard);
+		inputs.add({"type":"text","name":"NewBoardName","label":"New Board","hint":"Enter a name for the new board","placeholder":"Enter a name","mandatory":true,"value":""});
+		inputs.add({"type":"radio","name":"Structure","label":"Options","hint":"Select an option","mandatory":true,"value":"","options":{{"label":"Structure Only","value":"duplicate_board_with_structure"},{"label":"Include Items","value":"duplicate_board_with_pulses"},{"label":"Include Items and Updates","value":"duplicate_board_with_pulses_and_updates"}}});
+		inputs.add({"type":"radio","name":"KeepSubs","label":"Subscribers","hint":"Select an option","mandatory":true,"value":"","options":{{"label":"Keep Subscribers","value":"keep"},{"label":"Clear Subscribers","value":"clear"}}});
+		return {"type":"form","title":"Duplicate Board","name":"DuplicateBoard","version":1,"button_label":"Confirm","action":{"type":"invoke.function","name":"mboardactions"},"inputs":inputs};
+	}
+	else
+	{
+		return {"type":"form","title":"Read Board","hint":"Choose a board to read","name":"ReadBoard","version":1,"button_label":"Confirm","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+	}
+}
+else if(details.get("title").containsIgnoreCase("Add Subscribers") || details.get("title").containsIgnoreCase("Remove Subscribers"))
+{
+	boards = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { boards{ name id owner{id} }}"}
+		connection:"read_users_board_data"
+	];
+	opt = List();
+	adminornot = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { me { id is_admin }}"}
+		connection:"read_personal_info"
+	];
+	myid = adminornot.get("data").get("me").get("id");
+	isadmin = adminornot.get("data").get("me").get("is_admin");
+	boards = boards.get("data").get("boards");
+	for each  board in boards
+	{
+		ownerid = board.get("owner").get("id");
+		if(isadmin == true || ownerid == myid)
+		{
+			data = {"label":board.get("name"),"value":board.get("id")};
+			opt.add(data);
+		}
+	}
+	if(opt.isEmpty())
+	{
+		response = Map();
+		card = Map();
+		card.put("theme","prompt");
+		response.put("card",card);
+		card.put("thumbnail","https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif");
+		card.put("title","Sorry ;(");
+		response.put("text","You cannot do that operation because you don't own any boards!");
+		return response;
+	}
+	members = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { users  { id name}}"}
+		connection:"read_users_data"
+	];
+	members = members.get("data").get("users");
+	MEMBERS = List();
+	for each  member in members
+	{
+		if(member.get("id") != myid)
+		{
+			MEMBERS.add({"label":member.get("name"),"value":member.get("id")});
+		}
+	}
+	chooseboard = {"type":"dynamic_select","name":"BoardName","label":"Board","hint":"Select a board","placeholder":"Select a board","mandatory":true,"value":"","options":opt};
+	choosemembers = {"type":"dynamic_select","name":"ChooseMembers","label":"Members","hint":"Select the members","placeholder":"Select the members","mandatory":true,"multiple":true,"value":"","options":MEMBERS};
+	inputs = list();
+	inputs.add(chooseboard);
+	inputs.add(choosemembers);
+	if(details.get("title").containsIgnoreCase("Remove Subscribers"))
+	{
+		form = Map();
+		form.put("type","form");
+		form.put("title","Remove Subscribers");
+		form.put("hint","Enter the details");
+		form.put("name","RemoveSubscribers");
+		form.put("version",1);
+		form.put("button_label","Submit");
+		form.put("action",{"type":"invoke.function","name":"mboardactions"});
+		form.put("inputs",inputs);
+		return form;
+	}
+	else
+	{
+		chooserole = {"type":"radio","name":"ChooseRole","label":"Role","hint":"Select a role","mandatory":true,"value":"","options":{{"label":"Owner","value":"owner"},{"label":"Subscriber","value":"subscriber"}}};
+		inputs.add(chooserole);
+		form = Map();
+		form.put("type","form");
+		form.put("title","Add Subscribers");
+		form.put("hint","Enter the details");
+		form.put("name","AddSubscribers");
+		form.put("version",1);
+		form.put("button_label","Submit");
+		form.put("action",{"type":"invoke.function","name":"mboardactions"});
+		form.put("inputs",inputs);
+		return form;
+	}
+}
+else
+{
+	boards = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { boards{ name id owner{id} }}"}
+		connection:"read_users_board_data"
+	];
+	opt = List();
+	adminornot = invokeurl
+	[
+		url :"https://api.monday.com/v2"
+		type :POST
+		parameters:{"query":"query { me { id is_admin }}"}
+		connection:"read_personal_info"
+	];
+	myid = adminornot.get("data").get("me").get("id");
+	isadmin = adminornot.get("data").get("me").get("is_admin");
+	boards = boards.get("data").get("boards");
+	for each  board in boards
+	{
+		ownerid = board.get("owner").get("id");
+		if(isadmin == true || ownerid == myid)
+		{
+			data = {"label":board.get("name"),"value":board.get("id")};
+			opt.add(data);
+		}
+	}
+	if(opt.isEmpty())
+	{
+		response = Map();
+		card = Map();
+		card.put("theme","prompt");
+		response.put("card",card);
+		card.put("thumbnail","https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif");
+		card.put("title","Sorry ;(");
+		response.put("text","You cannot do that operation because you don't own any boards!");
+		return response;
+	}
+	chooseboard = {"type":"dynamic_select","name":"BoardName","label":"Board","hint":"Select a board","placeholder":"Select a board","mandatory":true,"value":"value","options":opt};
+	return {"type":"form","title":"Archive Board","hint":"Choose a board to delete","name":"ArchiveBoard","version":1,"button_label":"Confirm","action":{"type":"invoke.function","name":"mboardactions"},"inputs":{chooseboard}};
+}
+return Map();

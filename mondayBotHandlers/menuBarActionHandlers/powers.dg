@@ -1,0 +1,28 @@
+
+response = Map();
+response.put("text","All the tasks that I can perform are tabulated below.\n\n\n You can always view the table by clicking on *powers* in the menu bar");
+card = Map();
+card.put("title","My Powers :cool!:");
+card.put("theme","modern-inline");
+card.put("thumbnail","https://www.summitcpa.net/hs-fs/hubfs/businessman_multi_tasking_17876.gif?t=1513967233521&width=250&name=businessman_multi_tasking_17876.gif");
+response.put("card",card);
+slides = List();
+elem = Map();
+slides.add(elem);
+elem.put("type","table");
+data = Map();
+elem.put("data",data);
+data.put("headers",{"Command","Description"});
+rows = List();
+rows.add({"Command":"Tasks (Menu Action)","Description":"Click on the Tasks Dropdown below the chat to view all the tasks assigned to you and your team"});
+rows.add({"Command":"/mactivitylogs","Description":"Execute this command by choosing one of it's options to view your activity or all activity in your organization"});
+rows.add({"Command":"/mboards","Description":"Execute this command by choosing one of it's options to create, read, update, duplicate, archive boards and add or remove subscribers to the boards you own in your organization"});
+rows.add({"Command":"/mupdates","Description":"Execute this command by choosing one of it's options to read, write, delete updates for your items inside the boards in your organization"});
+rows.add({"Command":"Scheduled Morning","Description":"You will get a scheduled message of morning wishes, a daily fact and list of tasks assigned to you and your team"});
+rows.add({"Command":"Scheduled Evening","Description":"You will get a scheduled message of evening wishes, your updated status of tasks and a little bit of humour to make your day"});
+rows.add({"Command":"Widget","Description":"You will get a more descriptive view of all the tasks, boards and activity Logs in induvidual tabs"});
+rows.add({"Command":"Fun-Zone","Description":"Message me *Fun-Zone* if you want to reduce your stress levels :smile!:"});
+data.put("rows",rows);
+response.put("slides",slides);
+response.put("styles",{"highlight":true});
+return response;
